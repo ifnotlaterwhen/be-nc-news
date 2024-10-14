@@ -1,9 +1,17 @@
-const { selectAllTopics, fetchEndpoints } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById } = require("../models/models")
 
 exports.getAllTopics = (req, res, next)=>{
     selectAllTopics().then(topics => {
         res.status(200).send({topics})
     })
+}
+
+exports.getArticleById = (req,res, next)=>{
+    const {article_id} = req.params; 
+    fetchArticleById(article_id).then(article => {
+        res.status(200).send({article})
+    })
+    .catch(next)
 }
 
 exports.psqlErrorHandler = (err,req,res,next)=>{
@@ -34,3 +42,4 @@ exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
     res.status(200).send({endpoints})
 }
+
