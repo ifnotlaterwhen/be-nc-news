@@ -27,7 +27,7 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
-        test.only('GET /api', ()=>{
+        test('GET /api', ()=>{
             return request(app)
             .get('/api')
             .expect(200)
