@@ -21,6 +21,7 @@ describe('NC news endpoint tests',()=>{
             .expect(200)
             .then(({body})=>{
                 expect(Array.isArray(body.topics)).toBe(true)
+                expect(body.topics.length).toBe(3)
                 body.topics.forEach(topic=>{
                     expect(typeof topic.description).toBe('string')
                     expect(typeof topic.slug).toBe('string')
