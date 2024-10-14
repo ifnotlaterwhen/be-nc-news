@@ -1,4 +1,4 @@
-const { selectAllTopics } = require("../models/models")
+const { selectAllTopics, fetchEndpoints } = require("../models/models")
 
 exports.getAllTopics = (req, res, next)=>{
     selectAllTopics().then(topics => {
@@ -28,4 +28,9 @@ exports.serverErrorHandler = (err,req,res,next)=>{
 exports.allErrorHandler = (err,req,res,next)=>{
     res.status(404).send({msg: "path not found"})
 
+}
+
+exports.getEndpoints = (req,res,next) => {
+    const endpoints = fetchEndpoints()
+    res.status(200).send({endpoints})
 }

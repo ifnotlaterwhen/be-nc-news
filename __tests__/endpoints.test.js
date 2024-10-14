@@ -3,6 +3,7 @@ const app = require('../app.js');
 const db = require('../db/connection.js');
 const seed = require('../db/seeds/seed.js');
 const data = require('../db/data/test-data');
+const endpointsObj = require('../endpoints.json')
 
 beforeEach(()=>{
     return seed(data)
@@ -24,6 +25,14 @@ describe('NC news endpoint tests',()=>{
                     expect(typeof topic.description).toBe('string')
                     expect(typeof topic.slug).toBe('string')
                 })
+            })
+        })
+        test('GET /api', ()=>{
+            return request(app)
+            .get('/api')
+            .expect(200)
+            .then(({body})=>{
+                expect(body.endpoints).toEqual(endpointsObj)
             })
         })
     })
