@@ -348,4 +348,29 @@ describe('NC news endpoint tests',()=>{
             })
         })
     })
+    describe('GETting users', ()=>{
+        describe('GET an array of all users',() => {
+            test('Respond with 200 and an array of objects with all users', () => {
+                return request(app)
+                .get('/api/users')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.users.length > 0).toBe(true);
+                    body.users.forEach(user =>{
+                        expect(typeof user.username).toBe('string');
+                        expect(typeof user.name).toBe('string');
+                        expect(typeof user.avatar_url).toBe('string');
+                    })
+                })
+            })
+            test('Respond with 404 when passed invalid path', () => {
+                return request(app)
+                .get('/api/usrs')
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe('path not found');
+                })
+            })
+        })
+    })
 })
