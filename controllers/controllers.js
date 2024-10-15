@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers } = require("../models/models")
 
 exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
@@ -74,6 +74,13 @@ exports.deleteCommentById = (req,res,next) => {
     .catch(next)
 }
 
+exports.getAllUsers = (req,res,next) => {
+    fetchAllUsers().then(users => {
+        res.status(200).send({users})
+    })
+    .catch(next)
+}
+
 exports.psqlErrorHandler = (err,req,res,next)=>{
     if(err.code === '22P02' || err.code === '23502'){
         res.status(400).send({msg: "Bad Request"})
@@ -93,9 +100,8 @@ exports.serverErrorHandler = (err,req,res,next)=>{
 
 }
 
-exports.allErrorHandler = (err,req,res,next)=>{
+exports.allErrorHandler = (req,res,next)=>{
     res.status(404).send({msg: "path not found"})
-
 }
 
 
