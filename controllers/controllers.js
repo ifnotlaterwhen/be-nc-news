@@ -1,4 +1,10 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById } = require("../models/models")
+
+exports.getEndpoints = (req,res,next) => {
+    const endpoints = fetchEndpoints()
+    res.status(200).send({endpoints})
+}
+
 
 exports.getAllTopics = (req, res, next)=>{
     selectAllTopics().then(topics => {
@@ -60,6 +66,14 @@ exports.patchArticleById = (req, res,next) => {
     .catch(next)
 }
 
+exports.deleteCommentById = (req,res,next) => {
+    const {comment_id} = req.params;
+    removeCommentsById(comment_id).then(()=>{
+        res.status(204).send();
+    })
+    .catch(next)
+}
+
 exports.psqlErrorHandler = (err,req,res,next)=>{
     if(err.code === '22P02' || err.code === '23502'){
         res.status(400).send({msg: "Bad Request"})
@@ -84,8 +98,4 @@ exports.allErrorHandler = (err,req,res,next)=>{
 
 }
 
-exports.getEndpoints = (req,res,next) => {
-    const endpoints = fetchEndpoints()
-    res.status(200).send({endpoints})
-}
 
