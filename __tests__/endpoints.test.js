@@ -81,8 +81,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles')
                 .expect(200)
                 .then(({body})=>{
-                    console.log(body.articles.length)
-                    if(body.articles.length > 0){
+                    expect(body.articles.length > 0).toBe(true)
                         body.articles.forEach(article=>{
                             expect(typeof article.article_id).toBe('number');
                             expect(typeof article.title).toBe('string');
@@ -93,7 +92,6 @@ describe('NC news endpoint tests',()=>{
                             expect(typeof article.article_img_url).toBe('string');
                             expect(typeof article.comment_count).toBe('number');
                         })
-                    }
                 })
             })
         })
@@ -103,7 +101,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles/1/comments')
                 .expect(200)
                 .then(({body})=>{
-                    if(body.comments.length > 0){
+                        expect(body.comments.length > 0).toBe(true)
                         body.comments.forEach(comment=>{
                             expect(typeof comment.comment_id).toBe('number')
                             expect(typeof comment.votes).toBe('number');
@@ -113,7 +111,6 @@ describe('NC news endpoint tests',()=>{
                             expect(typeof comment.article_id).toBe('number');
                         })
                         expect(body.comments).toBeSortedBy('created_at', {descending:true})
-                    }
                 })
             })
             test('Respond with 400 when given invalid param',()=>{
@@ -141,5 +138,50 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
+    })
+    describe('POSTing news',()=>{
+        describe('POSTing new comment',()=>{
+            test('POST /api/articles/:article_id/comments', ()=>{
+                const commentToAdd = {username: "lurker", body: "this article is wack"}
+                const newComment = {
+                    body:  "this article is wack",
+                    votes: 0,
+                    author: "lurker",
+                    article_id: 13
+                  }
+                return request(app)
+                .post('/api/articles/13/comments')
+                .send(commentToAdd)
+                .expect(201)
+                .then(({body})=>{
+                    expect(body.comment.body).toBe(newComment.body);
+                    expect(body.comment.votes).toBe(newComment.votes);
+                    expect(body.comment.author).toBe(newComment.author);
+                    expect(body.comment.article_id).toBe(newComment.article_id);
+                    expect(typeof body.comment.created_at).toBe('string');
+                })
+            })
+            test('respond with 404 when provided a valid but non-existent article_id', ()=>{
+                const commentToAdd = {username: "lurker", body: "this article is wack"}
+                return request(app)
+                .post('/api/articles/9999/comments')
+                .send(commentToAdd)
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe('article does not exist')
+                })
+            })
+            test('respond with 400 when provided an invalid param', ()=>{
+                const commentToAdd = {username: "lurker", body: "this article is wack"}
+                return request(app)
+                .post('/api/articles/meow/comments')
+                .send(commentToAdd)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Bad Request')
+                })
+            })
+        })
+
     })
 })

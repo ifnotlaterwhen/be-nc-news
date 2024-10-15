@@ -46,6 +46,16 @@ exports.fetchCommentsByArticleId = (article_id)=>{
         })
 }
 
+exports.writeCommentByArticleId = (article_id, newComment) => {
+    return db.query(`INSERT INTO comments
+        (body, votes, author, article_id, created_at)
+        VALUES
+        ($1, 0, $2, $3, NOW()) RETURNING *`, [newComment.body, newComment.username, article_id])
+        .then(({rows})=>{
+            return rows[0]
+        })
+}
+
 exports.fetchEndpoints= ()=>{
     return endpoints
 }
