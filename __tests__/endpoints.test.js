@@ -48,7 +48,7 @@ describe('NC news endpoint tests',()=>{
                 .expect(200)
                 .then(({body})=>{
                     expect(body.article.article_id).toBe(1);
-                    expect(typeof body.article.title).toBe('string');
+                    expect(typeof body.article.topic).toBe('string');
                     expect(typeof body.article.topic).toBe('string');
                     expect(typeof body.article.author).toBe('string');
                     expect(typeof body.article.body).toBe('string');
@@ -183,5 +183,81 @@ describe('NC news endpoint tests',()=>{
             })
         })
 
+    })
+    describe('PATCHing news',()=>{
+        describe('PATCH article by article id',()=>{
+            test('/api/articles/:article_id',()=>{
+                const patch = {inc_votes: -10}
+                const patched = {
+                    article_id: 13,
+                    title: 'Another article about Mitch',
+                    topic: 'mitch',
+                    author: 'butter_bridge',
+                    body: 'There will never be enough articles about Mitch!',
+                    votes: 0,
+                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                  }
+                return request(app)
+                .patch('/api/articles/13')
+                .send(patch)
+                .expect(201)
+                .then(({body})=>{
+                    expect(body.patchedArticle.article_id).toBe(patched.article_id);
+                    expect(body.patchedArticle.title).toBe(patched.title);
+                    expect(body.patchedArticle.topic).toBe(patched.topic);
+                    expect(body.patchedArticle.author).toBe(patched.author);
+                    expect(body.patchedArticle.body).toBe(patched.body);
+                    expect(body.patchedArticle.votes).toBe(patched.votes);
+                    expect(body.patchedArticle.article_img_url).toBe(patched.article_img_url);
+                    expect(typeof body.patchedArticle.created_at).toBe('string')
+                })
+            })
+            test('respond with 400 when passed invalid data type',()=>{
+                const patch = {inc_votes: ""}
+                return request(app)
+                .patch('/api/articles/13')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('respond with 400 when passed incorrect key/ when inc_votes does not exist',()=>{
+                const patch = {random: 4}
+                return request(app)
+                .patch('/api/articles/13')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('Ignore unecessary properties and respond with 201',()=>{
+                const patch = {inc_votes: -10, username: "goat"}
+                const patched = {
+                    article_id: 13,
+                    title: 'Another article about Mitch',
+                    topic: 'mitch',
+                    author: 'butter_bridge',
+                    body: 'There will never be enough articles about Mitch!',
+                    votes: 0,
+                    article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
+                  }
+                return request(app)
+                .patch('/api/articles/13')
+                .send(patch)
+                .expect(201)
+                .then(({body})=>{
+                    expect(body.patchedArticle.article_id).toBe(patched.article_id);
+                    expect(body.patchedArticle.title).toBe(patched.title);
+                    expect(body.patchedArticle.topic).toBe(patched.topic);
+                    expect(body.patchedArticle.author).toBe(patched.author);
+                    expect(body.patchedArticle.body).toBe(patched.body);
+                    expect(body.patchedArticle.votes).toBe(patched.votes);
+                    expect(body.patchedArticle.article_img_url).toBe(patched.article_img_url);
+                    expect(typeof body.patchedArticle.created_at).toBe('string')
+                })
+            })
+        })
     })
 })
