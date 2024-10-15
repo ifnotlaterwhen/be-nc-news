@@ -46,7 +46,20 @@ exports.fetchCommentsByArticleId = (article_id)=>{
         })
 }
 
+exports.fetchUserbyUsername = (username)=>{
+    return db.query(`SELECT * FROM users
+        WHERE username = $1`, [username])
+        .then(({rows})=>{
+            if(rows.length === 0){
+                return Promise.reject({status:404, msg: "Username does not exists"})
+            }
+            return rows[0]
+        })
+}
 exports.writeCommentByArticleId = (article_id, newComment) => {
+    if(!newComment.body || !newComment.username){
+        return Promise.reject({status: 400, msg: "Missing required fields"})
+    }
     return db.query(`INSERT INTO comments
         (body, votes, author, article_id, created_at)
         VALUES
