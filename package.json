@@ -8,7 +8,8 @@
     "seed": "node ./db/seeds/run-seed.js",
     "test": "jest",
     "prepare": "husky install",
-    "start": "nodemon listener.js"
+    "start": "nodemon listener.js",
+    "endpoint": "jest endpoints.test.js"
   },
   "repository": {
     "type": "git",
