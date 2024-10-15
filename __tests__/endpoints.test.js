@@ -31,7 +31,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
         describe('GETting all the available apis',()=>{
-            test('GET /api', ()=>{
+            test('Respond with 200 and all available apis', ()=>{
                 return request(app)
                 .get('/api')
                 .expect(200)
@@ -42,7 +42,7 @@ describe('NC news endpoint tests',()=>{
         })
 
         describe('GETting article by article id',()=>{
-            test('GET /api/articles/:article_id', ()=>{
+            test('Respond with 200 with the correct article given valid and existent id', ()=>{
                 return request(app)
                 .get('/api/articles/1')
                 .expect(200)
@@ -76,7 +76,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
         describe('GETting all articles',()=>{
-            test('/api/articles',()=>{
+            test('Respond with 200 with all the apis available',()=>{
                 return request(app)
                 .get('/api/articles')
                 .expect(200)
@@ -96,7 +96,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
         describe('GETting comments by article id',()=>{
-            test('/api/articles/:article_id/comments',()=>{
+            test('Respond with 200 with the correct comment',()=>{
                 return request(app)
                 .get('/api/articles/1/comments')
                 .expect(200)
@@ -141,7 +141,7 @@ describe('NC news endpoint tests',()=>{
     })
     describe('POSTing news',()=>{
         describe('POSTing new comment',()=>{
-            test('POST /api/articles/:article_id/comments', ()=>{
+            test('respond with 200 with the correct comment posted', ()=>{
                 const commentToAdd = {username: "lurker", body: "this article is wack"}
                 const newComment = {
                     body:  "this article is wack",
@@ -181,12 +181,52 @@ describe('NC news endpoint tests',()=>{
                     expect(body.msg).toBe('Bad Request')
                 })
             })
+            test('respond with 201 when passed an object with unecessary properties', ()=>{
+                const commentToAdd = {username: "lurker", body: "this article is wack", votes: 10, article_id: 5000}
+                const newComment = {
+                    body:  "this article is wack",
+                    votes: 0,
+                    author: "lurker",
+                    article_id: 13
+                  }
+                return request(app)
+                .post('/api/articles/13/comments')
+                .send(commentToAdd)
+                .expect(201)
+                .then(({body})=>{
+                    expect(body.comment.body).toBe(newComment.body);
+                    expect(body.comment.votes).toBe(newComment.votes);
+                    expect(body.comment.author).toBe(newComment.author);
+                    expect(body.comment.article_id).toBe(newComment.article_id);
+                    expect(typeof body.comment.created_at).toBe('string');
+                })
+            })
+            test('respond with 400 when there are missing fields', ()=>{
+                const commentToAdd = {body: "this article is wack"}
+                return request(app)
+                .post('/api/articles/meow/comments')
+                .send(commentToAdd)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Missing required fields')
+                })
+            })
+            test('respond with 404 when username does not exist', ()=>{
+                const commentToAdd = {username: "goat", body: "this article is wack"}
+                return request(app)
+                .post('/api/articles/13/comments')
+                .send(commentToAdd)
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Username does not exists')
+                })
+            })
         })
 
     })
     describe('PATCHing news',()=>{
         describe('PATCH article by article id',()=>{
-            test('/api/articles/:article_id',()=>{
+            test('Respond with 201 and an updated article when passed valid request body and article id',()=>{
                 const patch = {inc_votes: -10}
                 const patched = {
                     article_id: 13,
@@ -216,6 +256,26 @@ describe('NC news endpoint tests',()=>{
                 const patch = {inc_votes: ""}
                 return request(app)
                 .patch('/api/articles/13')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('respond with 404 when provided article_id does not exist',()=>{
+                const patch = {inc_votes: 5}
+                return request(app)
+                .patch('/api/articles/9999')
+                .send(patch)
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe("article does not exist")
+                })
+            })
+            test('respond with 400 when provided article_id is invalid',()=>{
+                const patch = {inc_votes: 5}
+                return request(app)
+                .patch('/api/articles/hello')
                 .send(patch)
                 .expect(400)
                 .then(({body})=>{

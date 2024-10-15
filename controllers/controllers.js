@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername } = require("../models/models")
 
 exports.getAllTopics = (req, res, next)=>{
     selectAllTopics().then(topics => {
@@ -39,9 +39,10 @@ exports.getCommentsByArticleId = (req,res,next)=>{
 exports.postCommentbyArticleId = (req,res,next)=>{
     const {article_id} = req.params;
     const newComment = req.body;
-    const promises = [fetchArticleById(article_id), writeCommentByArticleId(article_id,newComment)]
+    const promises = [fetchUserbyUsername(newComment.username), fetchArticleById(article_id), writeCommentByArticleId(article_id,newComment)]
+    
     Promise.all(promises).then(result => {
-        const comment = result[1];
+        const comment = result[2];
         res.status(201).send({comment})
     })
     .catch(next)
