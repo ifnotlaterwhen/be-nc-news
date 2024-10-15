@@ -94,5 +94,39 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
+        describe('GETting comments by article id',()=>{
+            test('/api/articles/:article_id/comments',()=>{
+                return request(app)
+                .get('/api/articles/1/comments')
+                .expect(200)
+                .then(({body})=>{
+                    body.comments.forEach(comment=>{
+                        expect(typeof comment.comment_id).toBe('number')
+                        expect(typeof comment.votes).toBe('number');
+                        expect(typeof comment.created_at).toBe('string');
+                        expect(typeof comment.author).toBe('string');
+                        expect(typeof comment.body).toBe('string');
+                        expect(typeof comment.article_id).toBe('number');
+                    })
+                    expect(body.comments).toBeSortedBy('created_at', {descending:true})
+                })
+            })
+            test('Respond with 400 when given invalid param',()=>{
+                return request(app)
+                .get('/api/articles/random/comments')
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Bad Request')
+                })
+            })
+            test('Respond with 404 when given valid but non existent id',()=>{
+                return request(app)
+                .get('/api/articles/9999/comments')
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe("article does not exist")
+                })
+            })
+        })
     })
 })
