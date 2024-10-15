@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById } = require("../models/models")
 
 exports.getAllTopics = (req, res, next)=>{
     selectAllTopics().then(topics => {
@@ -29,7 +29,7 @@ exports.getCommentsByArticleId = (req,res,next)=>{
     const {article_id} = req.params
     const promises = [fetchCommentsByArticleId(article_id),fetchArticleById(article_id)]
     Promise.all(promises)
-    .then(results => {
+    .then(results => { 
         const comments = results[0]
         res.status(200).send({comments})
     })
@@ -43,6 +43,18 @@ exports.postCommentbyArticleId = (req,res,next)=>{
     Promise.all(promises).then(result => {
         const comment = result[1];
         res.status(201).send({comment})
+    })
+    .catch(next)
+}
+
+exports.patchArticleById = (req, res,next) => {
+    const patch = req.body;
+    const {article_id} = req.params;
+    const promises = [updateVotesById(article_id,patch), fetchArticleById(article_id)]
+    Promise.all(promises)
+    .then(result => {
+        const patchedArticle = result[0]
+        res.status(201).send({patchedArticle})
     })
     .catch(next)
 }

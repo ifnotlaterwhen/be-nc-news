@@ -56,6 +56,19 @@ exports.writeCommentByArticleId = (article_id, newComment) => {
         })
 }
 
+exports.updateVotesById = (article_id, patchBody) => {
+    const newVotes = patchBody.inc_votes
+    if(!newVotes){
+        return Promise.reject({status:400, msg:"Bad Request"})
+    }
+    return db.query(`UPDATE articles
+        SET votes = GREATEST(votes + $1, 0)
+        WHERE article_id = $2
+        RETURNING *`, [newVotes, article_id])
+        .then(({rows})=>{
+            return rows[0]
+        })
+}
 exports.fetchEndpoints= ()=>{
     return endpoints
 }
