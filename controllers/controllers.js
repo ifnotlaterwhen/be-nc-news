@@ -27,7 +27,10 @@ exports.getAllArticles = (req,res,next)=>{
 
 exports.getCommentsByArticleId = (req,res,next)=>{
     const {article_id} = req.params
-    fetchCommentsByArticleId(article_id).then(comments=>{
+    const promises = [fetchCommentsByArticleId(article_id),fetchArticleById(article_id)]
+    Promise.all(promises)
+    .then(results => {
+        const comments = results[0]
         res.status(200).send({comments})
     })
     .catch(next)

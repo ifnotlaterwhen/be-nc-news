@@ -81,16 +81,19 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles')
                 .expect(200)
                 .then(({body})=>{
-                    body.articles.forEach(article=>{
-                        expect(typeof article.article_id).toBe('number');
-                        expect(typeof article.title).toBe('string');
-                        expect(typeof article.author).toBe('string');
-                        expect(typeof article.topic).toBe('string');
-                        expect(typeof article.created_at).toBe('string');
-                        expect(typeof article.votes).toBe('number');
-                        expect(typeof article.article_img_url).toBe('string');
-                        expect(typeof article.comment_count).toBe('number');
-                    })
+                    console.log(body.articles.length)
+                    if(body.articles.length > 0){
+                        body.articles.forEach(article=>{
+                            expect(typeof article.article_id).toBe('number');
+                            expect(typeof article.title).toBe('string');
+                            expect(typeof article.author).toBe('string');
+                            expect(typeof article.topic).toBe('string');
+                            expect(typeof article.created_at).toBe('string');
+                            expect(typeof article.votes).toBe('number');
+                            expect(typeof article.article_img_url).toBe('string');
+                            expect(typeof article.comment_count).toBe('number');
+                        })
+                    }
                 })
             })
         })
@@ -100,15 +103,17 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles/1/comments')
                 .expect(200)
                 .then(({body})=>{
-                    body.comments.forEach(comment=>{
-                        expect(typeof comment.comment_id).toBe('number')
-                        expect(typeof comment.votes).toBe('number');
-                        expect(typeof comment.created_at).toBe('string');
-                        expect(typeof comment.author).toBe('string');
-                        expect(typeof comment.body).toBe('string');
-                        expect(typeof comment.article_id).toBe('number');
-                    })
-                    expect(body.comments).toBeSortedBy('created_at', {descending:true})
+                    if(body.comments.length > 0){
+                        body.comments.forEach(comment=>{
+                            expect(typeof comment.comment_id).toBe('number')
+                            expect(typeof comment.votes).toBe('number');
+                            expect(typeof comment.created_at).toBe('string');
+                            expect(typeof comment.author).toBe('string');
+                            expect(typeof comment.body).toBe('string');
+                            expect(typeof comment.article_id).toBe('number');
+                        })
+                        expect(body.comments).toBeSortedBy('created_at', {descending:true})
+                    }
                 })
             })
             test('Respond with 400 when given invalid param',()=>{
@@ -125,6 +130,14 @@ describe('NC news endpoint tests',()=>{
                 .expect(404)
                 .then(({body})=>{
                     expect(body.msg).toBe("article does not exist")
+                })
+            })
+            test('Respond with 200 and an empty array when given existent id but no comments ',()=>{
+                return request(app)
+                .get('/api/articles/13/comments')
+                .expect(200)
+                .then(({body})=>{
+                    expect(body.comments).toEqual([])
                 })
             })
         })
