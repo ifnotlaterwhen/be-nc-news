@@ -320,4 +320,32 @@ describe('NC news endpoint tests',()=>{
             })
         })
     })
+    describe('DELETEting news',()=>{
+        describe('DELETE the comment by comment id',()=>{
+            test('Respond with 204 and no content', ()=>{
+                return request(app)
+                .delete('/api/comments/1')
+                .expect(204)
+                .then(({body}) => {
+                    expect(body).toEqual({});
+                })
+            })
+            test('Respond with 404 when passed a valid but non existent comment_id', ()=>{
+                return request(app)
+                .delete('/api/comments/9999')
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe("comment not found");
+                })
+            })
+            test('Respond with 400 when passed an invalid comment_id', ()=>{
+                return request(app)
+                .delete('/api/comments/bye')
+                .expect(400)
+                .then(({body}) => {
+                    expect(body.msg).toBe("Bad Request");
+                })
+            })
+        })
+    })
 })
