@@ -24,35 +24,48 @@ exports.fetchArticleById = (id) => {
 }
 
 exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>{
-    for(let query in rest){
-        if(query !== 'sort_by' && query !== 'order'){
-            return Promise.reject({status:400, msg: 'Invalid query'})
+
+    return db.query(`SELECT slug FROM topics`)
+    .then(({rows}) => {
+        for(let query in rest){
+            if(!['sort_by', 'order', 'topic'].includes(query)){
+                return Promise.reject({status:400, msg: 'Invalid query'})
+            }
         }
-    }
-    const sortColumns = ['title', 'topic', 'author', 'created_at'];
-    const orderOptions = ['asc', 'desc'];
-
-    if(!sortColumns.includes(sort_by) || !orderOptions.includes(order)){
-        return Promise.reject({status:400, msg: 'Bad Request'})
-    }
-
-    let queryStr = `SELECT articles.article_id, 
-        articles.title, 
-        articles.author, 
-        articles.topic, 
-        articles.created_at, 
-        articles.votes, 
-        articles.article_img_url, 
-        CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count 
-        FROM articles 
-        LEFT JOIN comments ON articles.article_id = comments.article_id 
-        GROUP BY articles.article_id
-        ORDER BY ${sort_by} ${order.toUpperCase()}`
-
-    return db.query(queryStr)
-        .then(({rows})=>{
-            return rows
+        const sortColumns = ['title', 'topic', 'author', 'created_at'];
+        const orderOptions = ['asc', 'desc'];
+        const topicsOptions = rows.map(topic=>{
+            return topic.slug
         })
+    
+        if(!sortColumns.includes(sort_by) || !orderOptions.includes(order) || !topicsOptions.includes(rest.topic) && rest.topic){
+            return Promise.reject({status:400, msg: 'Bad Request'})
+        }
+    
+        let queryStr = `SELECT articles.article_id, 
+            articles.title, 
+            articles.author, 
+            articles.topic, 
+            articles.created_at, 
+            articles.votes, 
+            articles.article_img_url, 
+            CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count
+            FROM articles
+            LEFT JOIN comments ON articles.article_id = comments.article_id`
+    
+        if(rest.topic){
+            queryStr += ` WHERE articles.topic = '${rest.topic}'`
+        }
+    
+        queryStr += ` GROUP BY articles.article_id
+        ORDER BY ${sort_by} ${order.toUpperCase()}`
+    
+        return db.query(queryStr)
+            .then(({rows})=>{
+                return rows
+            })
+    })
+    
 }
 
 exports.fetchCommentsByArticleId = (article_id)=>{
