@@ -1,5 +1,5 @@
 const express = require('express');
-const { getAllTopics, serverErrorHandler, customErrorHandler, psqlErrorHandler, allErrorHandler, getEndpoints, getArticleById, getAllArticles, getCommentsByArticleId, postCommentbyArticleId, patchArticleById, deleteCommentById, getAllUsers } = require('./controllers/controllers');
+const { getAllTopics, serverErrorHandler, customErrorHandler, psqlErrorHandler, allErrorHandler, getEndpoints, getArticleById, getAllArticles, getCommentsByArticleId, postCommentbyArticleId, patchArticleById, deleteCommentById, getAllUsers, getUserByUsername } = require('./controllers/controllers');
 const app = express();
 
 app.use(express.json())
@@ -21,6 +21,8 @@ app.patch('/api/articles/:article_id', patchArticleById);
 app.delete('/api/comments/:comment_id', deleteCommentById);
 
 app.get('/api/users', getAllUsers);
+
+app.get('/api/users/:username', getUserByUsername);
 
 
 app.use(psqlErrorHandler);
