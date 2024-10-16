@@ -397,6 +397,84 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
+        describe('PATCH comments by comment id', () => {
+            test('Respond with 200 and an object of the patched comment', () => {
+                const patch = {inc_votes: -10}
+                const patched = {
+                    body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+                    votes: 4,
+                    author: "butter_bridge",
+                    article_id: 1,
+                    created_at: new Date(1604113380000).toISOString(),
+                  }
+                return request(app)
+                .patch('/api/comments/2')
+                .send(patch)
+                .expect(201)
+                .then(({body}) => {
+                    expect(body.patchedComment).toMatchObject(patched)
+                })
+
+            })
+            test('respond with 400 when passed invalid data type',()=>{
+                const patch = {inc_votes: ""}
+                return request(app)
+                .patch('/api/comments/13')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('respond with 404 when provided article_id does not exist',()=>{
+                const patch = {inc_votes: 5}
+                return request(app)
+                .patch('/api/comments/9999')
+                .send(patch)
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe("this comment id does not exist")
+                })
+            })
+            test('respond with 400 when provided article_id is invalid',()=>{
+                const patch = {inc_votes: 5}
+                return request(app)
+                .patch('/api/comments/hello')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('respond with 400 when passed incorrect key/ when inc_votes does not exist',()=>{
+                const patch = {random: 4}
+                return request(app)
+                .patch('/api/comments/13')
+                .send(patch)
+                .expect(400)
+                .then(({body})=>{
+                    expect(body.msg).toBe("Bad Request")
+                })
+            })
+            test('Ignore unecessary properties and respond with 201',()=>{
+                const patch = {inc_votes: -10, username: "goat"}
+                const patched = {
+                    body: "The beautiful thing about treasure is that it exists. Got to find out what kind of sheets these are; not cotton, not rayon, silky.",
+                    votes: 4,
+                    author: "butter_bridge",
+                    article_id: 1,
+                    created_at: new Date(1604113380000).toISOString(),
+                  }
+                return request(app)
+                .patch('/api/comments/2')
+                .send(patch)
+                .expect(201)
+                .then(({body})=>{
+                    expect(body.patchedComment).toMatchObject(patched)
+                })
+            })
+
+        })
     })
     describe('DELETEting news',()=>{
         describe('DELETE the comment by comment id',()=>{

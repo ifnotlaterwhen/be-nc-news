@@ -77,6 +77,17 @@ exports.fetchCommentsByArticleId = (article_id)=>{
         })
 }
 
+exports.fetchCommentByCommentId = (comment_id) => {
+    return db.query(`SELECT * FROM comments
+        WHERE comment_id = $1`, [comment_id])
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({status: 404, msg: 'this comment id does not exist'})
+            }
+            return rows[0]
+        })
+}
+
 exports.fetchUserbyUsername = (username)=>{
     return db.query(`SELECT * FROM users
         WHERE username = $1`, [username])
@@ -100,18 +111,29 @@ exports.writeCommentByArticleId = (article_id, newComment) => {
         })
 }
 
-exports.updateVotesById = (article_id, patchBody) => {
-    const newVotes = patchBody.inc_votes
+exports.updateVotesById = (idObj, patchBody) => {
+    const newVotes = patchBody.inc_votes;
     if(!newVotes){
         return Promise.reject({status:400, msg:"Bad Request"})
     }
-    return db.query(`UPDATE articles
-        SET votes = GREATEST(votes + $1, 0)
-        WHERE article_id = $2
-        RETURNING *`, [newVotes, article_id])
-        .then(({rows})=>{
-            return rows[0]
-        })
+    if(idObj.comment_id){
+        return db.query(`UPDATE comments
+            SET votes = GREATEST(votes + $1, 0)
+            WHERE comment_id = $2
+            RETURNING *`, [newVotes, idObj.comment_id])
+            .then(({rows})=>{
+                return rows[0]
+            })
+    }
+    if(idObj.article_id){
+        return db.query(`UPDATE articles
+            SET votes = GREATEST(votes + $1, 0)
+            WHERE article_id = $2
+            RETURNING *`, [newVotes, idObj.article_id])
+            .then(({rows})=>{
+                return rows[0]
+            })
+    }
 }
 
 exports.removeCommentsById = (comment_id) => {
