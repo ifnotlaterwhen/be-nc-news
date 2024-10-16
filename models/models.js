@@ -43,7 +43,7 @@ exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>
         articles.created_at, 
         articles.votes, 
         articles.article_img_url, 
-        COUNT(comments.comment_id) AS comment_count 
+        CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count 
         FROM articles 
         LEFT JOIN comments ON articles.article_id = comments.article_id 
         GROUP BY articles.article_id
@@ -108,7 +108,7 @@ exports.removeCommentsById = (comment_id) => {
             if(rows.length === 0){
                 return Promise.reject({status: 404, msg: "comment not found"})
             }
-            return rows[0]
+            //return rows[0] <--no need for this
         })
 }
 

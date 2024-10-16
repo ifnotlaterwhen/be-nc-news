@@ -81,7 +81,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles')
                 .expect(200)
                 .then(({body})=>{
-                    expect(body.articles.length > 0).toBe(true)
+                    expect(body.articles.length).toBeGreaterThan(0)
                         body.articles.forEach(article=>{
                             expect(typeof article.article_id).toBe('number');
                             expect(typeof article.title).toBe('string');
@@ -99,7 +99,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles?sort_by=title')
                 .expect(200)
                 .then(({body})=>{
-                    expect(body.articles.length > 0).toBe(true)
+                    expect(body.articles.length).toBeGreaterThan(0)
                         body.articles.forEach(article=>{
                             expect(typeof article.article_id).toBe('number');
                             expect(typeof article.title).toBe('string');
@@ -118,7 +118,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles?sort_by=title&order=asc')
                 .expect(200)
                 .then(({body})=>{
-                    expect(body.articles.length > 0).toBe(true)
+                    expect(body.articles.length).toBeGreaterThan(0)
                         body.articles.forEach(article=>{
                             expect(typeof article.article_id).toBe('number');
                             expect(typeof article.title).toBe('string');
@@ -155,7 +155,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles/1/comments')
                 .expect(200)
                 .then(({body})=>{
-                        expect(body.comments.length > 0).toBe(true)
+                        expect(body.comments.length).toBeGreaterThan(0)
                         body.comments.forEach(comment=>{
                             expect(typeof comment.comment_id).toBe('number')
                             expect(typeof comment.votes).toBe('number');
@@ -212,6 +212,7 @@ describe('NC news endpoint tests',()=>{
                     expect(body.comment.votes).toBe(newComment.votes);
                     expect(body.comment.author).toBe(newComment.author);
                     expect(body.comment.article_id).toBe(newComment.article_id);
+                    expect(body.comment.comment_id).toBe(19)
                     expect(typeof body.comment.created_at).toBe('string');
                 })
             })
@@ -289,6 +290,7 @@ describe('NC news endpoint tests',()=>{
                     author: 'butter_bridge',
                     body: 'There will never be enough articles about Mitch!',
                     votes: 0,
+                    created_at: "2020-10-11T11:24:00.000Z",
                     article_img_url: 'https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700'
                   }
                 return request(app)
@@ -296,14 +298,7 @@ describe('NC news endpoint tests',()=>{
                 .send(patch)
                 .expect(201)
                 .then(({body})=>{
-                    expect(body.patchedArticle.article_id).toBe(patched.article_id);
-                    expect(body.patchedArticle.title).toBe(patched.title);
-                    expect(body.patchedArticle.topic).toBe(patched.topic);
-                    expect(body.patchedArticle.author).toBe(patched.author);
-                    expect(body.patchedArticle.body).toBe(patched.body);
-                    expect(body.patchedArticle.votes).toBe(patched.votes);
-                    expect(body.patchedArticle.article_img_url).toBe(patched.article_img_url);
-                    expect(typeof body.patchedArticle.created_at).toBe('string')
+                    expect(body.patchedArticle).toMatchObject(patched)
                 })
             })
             test('respond with 400 when passed invalid data type',()=>{
@@ -380,9 +375,10 @@ describe('NC news endpoint tests',()=>{
                 return request(app)
                 .delete('/api/comments/1')
                 .expect(204)
-                .then(({body}) => {
-                    expect(body).toEqual({});
-                })
+                // .then(({body}) => {
+                //     expect(body).toEqual({});
+                // })
+                //the above .then block isn't needed as 204 does not send content back automatically.
             })
             test('Respond with 404 when passed a valid but non existent comment_id', ()=>{
                 return request(app)
@@ -409,7 +405,7 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/users')
                 .expect(200)
                 .then(({body}) => {
-                    expect(body.users.length > 0).toBe(true);
+                    expect(body.users.length).toBeGreaterThan(0);
                     body.users.forEach(user =>{
                         expect(typeof user.username).toBe('string');
                         expect(typeof user.name).toBe('string');
@@ -417,13 +413,15 @@ describe('NC news endpoint tests',()=>{
                     })
                 })
             })
-            test('Respond with 404 when passed invalid path', () => {
-                return request(app)
-                .get('/api/usrs')
-                .expect(404)
-                .then(({body}) => {
-                    expect(body.msg).toBe('path not found');
-                })
+        })
+    })
+    describe('Invalid Path Test',()=>{
+        test('Respond with 404 when passed invalid path', () => {
+            return request(app)
+            .get('/api/usrs')
+            .expect(404)
+            .then(({body}) => {
+                expect(body.msg).toBe('path not found');
             })
         })
     })

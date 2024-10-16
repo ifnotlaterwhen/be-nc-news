@@ -23,10 +23,6 @@ exports.getArticleById = (req,res, next)=>{
 exports.getAllArticles = (req,res,next)=>{
     const queries = req.query
     fetchAllArticles(queries).then(articles => {
-        articles.map(article=>{
-            article.comment_count = Number(article.comment_count)
-            return article
-        })
         res.status(200).send({articles})
     })
     .catch(next)
