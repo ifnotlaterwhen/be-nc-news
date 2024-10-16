@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId } = require("../models/models")
 
 exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
@@ -51,14 +51,21 @@ exports.postCommentbyArticleId = (req,res,next)=>{
     .catch(next)
 }
 
-exports.patchArticleById = (req, res,next) => {
+exports.patchVoteById = (req, res,next) => {
     const patch = req.body;
-    const {article_id} = req.params;
-    const promises = [updateVotesById(article_id,patch), fetchArticleById(article_id)]
+    const {article_id, comment_id} = req.params;
+    const promises = [updateVotesById(req.params,patch)]
+    if(article_id){
+        promises.push(fetchArticleById(article_id),{type: 'patchedArticle'});
+    }
+    if(comment_id){
+        promises.push(fetchCommentByCommentId(comment_id), {type: 'patchedComment'})
+    }
     Promise.all(promises)
     .then(result => {
-        const patchedArticle = result[0]
-        res.status(201).send({patchedArticle})
+        const patched = result[0]
+        const {type} = result[2]
+        res.status(201).send({[type] : patched})
     })
     .catch(next)
 }
