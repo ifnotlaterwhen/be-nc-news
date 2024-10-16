@@ -41,7 +41,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
 
-        describe('GETting article by article id',()=>{
+        describe.only('GETting article by article id',()=>{
             test('Respond with 200 with the correct article given valid and existent id', ()=>{
                 return request(app)
                 .get('/api/articles/1')
@@ -72,6 +72,22 @@ describe('NC news endpoint tests',()=>{
                 .expect(404)
                 .then(({body})=>{
                     expect(body.msg).toBe("article does not exist")
+                })
+            })
+            test('Respond with 200 with the correct article and its comment count',()=>{
+                return request(app)
+                .get('/api/articles/1')
+                .expect(200)
+                .then(({body:{article}})=>{
+                    expect(article.article_id).toBe(1);
+                    expect(typeof article.topic).toBe('string');
+                    expect(typeof article.topic).toBe('string');
+                    expect(typeof article.author).toBe('string');
+                    expect(typeof article.body).toBe('string');
+                    expect(typeof article.created_at).toBe('string');
+                    expect(typeof article.votes).toBe('number');
+                    expect(typeof article.article_img_url).toBe('string');
+                    expect(typeof article.comment_count).toBe('number')
                 })
             })
         })
