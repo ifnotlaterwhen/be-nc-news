@@ -21,7 +21,8 @@ exports.getArticleById = (req,res, next)=>{
 }
 
 exports.getAllArticles = (req,res,next)=>{
-    fetchAllArticles().then(articles => {
+    const queries = req.query
+    fetchAllArticles(queries).then(articles => {
         articles.map(article=>{
             article.comment_count = Number(article.comment_count)
             return article

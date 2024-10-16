@@ -94,6 +94,60 @@ describe('NC news endpoint tests',()=>{
                         })
                 })
             })
+            test('Respond with 200 with all the apis taking queries into consideration',()=>{
+                return request(app)
+                .get('/api/articles?sort_by=title')
+                .expect(200)
+                .then(({body})=>{
+                    expect(body.articles.length > 0).toBe(true)
+                        body.articles.forEach(article=>{
+                            expect(typeof article.article_id).toBe('number');
+                            expect(typeof article.title).toBe('string');
+                            expect(typeof article.author).toBe('string');
+                            expect(typeof article.topic).toBe('string');
+                            expect(typeof article.created_at).toBe('string');
+                            expect(typeof article.votes).toBe('number');
+                            expect(typeof article.article_img_url).toBe('string');
+                            expect(typeof article.comment_count).toBe('number');
+                        })
+                    expect(body.articles).toBeSortedBy('title', {descending: true})
+                })
+            })
+            test('Respond with 200 with all the apis taking multiple queries into consideration',()=>{
+                return request(app)
+                .get('/api/articles?sort_by=title&order=asc')
+                .expect(200)
+                .then(({body})=>{
+                    expect(body.articles.length > 0).toBe(true)
+                        body.articles.forEach(article=>{
+                            expect(typeof article.article_id).toBe('number');
+                            expect(typeof article.title).toBe('string');
+                            expect(typeof article.author).toBe('string');
+                            expect(typeof article.topic).toBe('string');
+                            expect(typeof article.created_at).toBe('string');
+                            expect(typeof article.votes).toBe('number');
+                            expect(typeof article.article_img_url).toBe('string');
+                            expect(typeof article.comment_count).toBe('number');
+                        })
+                    expect(body.articles).toBeSortedBy('title', {ascending: true})
+                })
+            })
+            test('Respond with 400 when the query is not greenlighted', ()=>{
+                return request(app)
+                .get('/api/articles?sort_by=droptable')
+                .expect(400)
+                .then(({body})=> {
+                    expect(body.msg).toBe('Bad Request')
+                })
+            })
+            test('Respond with 400 when the query does not exist', ()=>{
+                return request(app)
+                .get('/api/articles?meme=dank')
+                .expect(400)
+                .then(({body})=> {
+                    expect(body.msg).toBe('Invalid query')
+                })
+            })
         })
         describe('GETting comments by article id',()=>{
             test('Respond with 200 with the correct comment',()=>{
