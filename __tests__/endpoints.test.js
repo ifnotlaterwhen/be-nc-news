@@ -41,7 +41,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
 
-        describe.only('GETting article by article id',()=>{
+        describe('GETting article by article id',()=>{
             test('Respond with 200 with the correct article given valid and existent id', ()=>{
                 return request(app)
                 .get('/api/articles/1')
