@@ -78,6 +78,16 @@ exports.getAllUsers = (req,res,next) => {
     .catch(next)
 }
 
+exports.getUserByUsername = (req,res,next) => {
+    const{username} = req.params;
+    console.log()
+    fetchUserbyUsername(username).then(user =>{
+        res.status(200).send({user})
+    })
+    .catch(next)
+
+}
+
 exports.psqlErrorHandler = (err,req,res,next)=>{
     if(err.code === '22P02' || err.code === '23502'){
         res.status(400).send({msg: "Bad Request"})

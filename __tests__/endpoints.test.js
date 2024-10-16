@@ -443,6 +443,30 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
+        describe('GET an individual user by username', ()=>{
+            test('Respond with 200 and an object of the found user', () => {
+                const userFound = {
+                    username: 'lurker',
+                    name: 'do_nothing',
+                    avatar_url:
+                      'https://www.golenbock.com/wp-content/uploads/2015/01/placeholder-user.png'
+                  }
+                return request(app)
+                .get('/api/users/lurker')
+                .expect(200)
+                .then(({body}) => {
+                    expect(body.user).toMatchObject(userFound)
+                })
+            })
+            test('Respond with 404 when passed in an non-existent username', () => {
+                return request(app)
+                .get('/api/users/moth')
+                .expect(404)
+                .then(({body}) => {
+                    expect(body.msg).toBe('Username does not exists')
+                })
+            })
+        })
     })
     describe('Invalid Path Test',()=>{
         test('Respond with 404 when passed invalid path', () => {
