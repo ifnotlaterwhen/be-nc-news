@@ -91,7 +91,7 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
-        describe.only('GETting all articles',()=>{
+        describe('GETting all articles',()=>{
             test('Respond with 200 with all the articles available',()=>{
                 return request(app)
                 .get('/api/articles')
@@ -180,7 +180,6 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles?order=flop')
                 .expect(400)
                 .then(({body})=> {
-                    console.log(body)
                     expect(body.msg).toBe('Bad Request')
                 })
             })
@@ -209,7 +208,6 @@ describe('NC news endpoint tests',()=>{
                 .get('/api/articles?topic=paper')
                 .expect(200)
                 .then(({body})=>{
-                    console.log(body)
                     expect(body.articles.length).toBe(0)
                     expect(body.articles).toEqual([])
                 })
