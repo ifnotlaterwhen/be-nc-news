@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId, fetchTopicBySlug } = require("../models/models")
 
 exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
@@ -22,7 +22,12 @@ exports.getArticleById = (req,res, next)=>{
 
 exports.getAllArticles = (req,res,next)=>{
     const queries = req.query
-    fetchAllArticles(queries).then(articles => {
+    let promises = [fetchAllArticles(queries)]
+    if(req.query.topic){
+        promises.push(fetchTopicBySlug(req.query.topic))
+    }
+    Promise.all(promises).then(results => {
+        const articles = results[0]
         res.status(200).send({articles})
     })
     .catch(next)
@@ -92,6 +97,11 @@ exports.getUserByUsername = (req,res,next) => {
     })
     .catch(next)
 
+}
+
+exports.postNewArticle = (req,res,next) => {
+    const newArticle = req.body;
+    
 }
 
 exports.psqlErrorHandler = (err,req,res,next)=>{

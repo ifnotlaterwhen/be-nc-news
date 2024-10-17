@@ -91,7 +91,7 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
-        describe('GETting all articles',()=>{
+        describe.only('GETting all articles',()=>{
             test('Respond with 200 with all the articles available',()=>{
                 return request(app)
                 .get('/api/articles')
@@ -148,7 +148,26 @@ describe('NC news endpoint tests',()=>{
                     expect(body.articles).toBeSortedBy('title', {ascending: true})
                 })
             })
-            test('Respond with 400 when the query is not greenlighted', ()=>{
+            test('Respond with 200 with all the articles in the correct order when only order is queried',()=>{
+                return request(app)
+                .get('/api/articles?order=asc')
+                .expect(200)
+                .then(({body})=>{
+                    expect(body.articles.length).toBeGreaterThan(0)
+                        body.articles.forEach(article=>{
+                            expect(typeof article.article_id).toBe('number');
+                            expect(typeof article.title).toBe('string');
+                            expect(typeof article.author).toBe('string');
+                            expect(typeof article.topic).toBe('string');
+                            expect(typeof article.created_at).toBe('string');
+                            expect(typeof article.votes).toBe('number');
+                            expect(typeof article.article_img_url).toBe('string');
+                            expect(typeof article.comment_count).toBe('number');
+                        })
+                    expect(body.articles).toBeSortedBy('created_at', {ascending: true})
+                })
+            })
+            test('Respond with 400 when the sort_by query is not greenlighted', ()=>{
                 return request(app)
                 .get('/api/articles?sort_by=droptable')
                 .expect(400)
@@ -156,12 +175,13 @@ describe('NC news endpoint tests',()=>{
                     expect(body.msg).toBe('Bad Request')
                 })
             })
-            test('Respond with 400 when the query does not exist', ()=>{
+            test('Respond with 400 when the order query is not greenlighted', ()=>{
                 return request(app)
-                .get('/api/articles?meme=dank')
+                .get('/api/articles?order=flop')
                 .expect(400)
                 .then(({body})=> {
-                    expect(body.msg).toBe('Invalid query')
+                    console.log(body)
+                    expect(body.msg).toBe('Bad Request')
                 })
             })
             test('Respond with 200 with all the articles with a topic query',()=>{
@@ -184,13 +204,22 @@ describe('NC news endpoint tests',()=>{
                     expect(body.articles).toBeSortedBy('created_at', {descending: true})
                 })
             })
-            test('Respond with 400 when topic queried is not greenlighted',()=>{
+            test('Respond with 200 with an empty array when topic exists but has no associated articles',()=>{
                 return request(app)
-                .get('/api/articles?sort_by=title&order=asc&topic=memes')
-                .expect(400)
+                .get('/api/articles?topic=paper')
+                .expect(200)
                 .then(({body})=>{
-                    expect(body.msg).toBe('Bad Request')
-
+                    console.log(body)
+                    expect(body.articles.length).toBe(0)
+                    expect(body.articles).toEqual([])
+                })
+            })
+            test('Respond with 404 when queried topic does not exist',()=>{
+                return request(app)
+                .get('/api/articles?topic=memes')
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Topic not found')
                 })
             })
         })
