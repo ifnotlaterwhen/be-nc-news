@@ -36,25 +36,72 @@ exports.fetchArticleById = (id) => {
     })
 }
 
-exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>{
 
-    return db.query(`SELECT slug FROM topics`)
-    .then(({rows}) => {
-        for(let query in rest){
-            if(!['sort_by', 'order', 'topic'].includes(query)){
-                return Promise.reject({status:400, msg: 'Invalid query'})
-            }
-        }
-        const sortColumns = ['title', 'topic', 'author', 'created_at'];
-        const orderOptions = ['asc', 'desc'];
-        const topicsOptions = rows.map(topic=>{
-            return topic.slug
-        })
+//fetchtopics, fetch all articles. if topics fail, we get 404, if successful, we get array.
+// exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>{
+
+//     return db.query(`SELECT slug FROM topics`)
+//     .then(({rows}) => {
+//         for(let query in rest){
+//             if(!['sort_by', 'order', 'topic'].includes(query)){
+//                 return Promise.reject({status:400, msg: 'Invalid query'})
+//             }
+//         }
+//         const sortColumns = ['title', 'topic', 'author', 'created_at'];
+//         const orderOptions = ['asc', 'desc'];
+//         const topicsOptions = rows.map(topic=>{
+//             return topic.slug
+//         })
     
-        if(!sortColumns.includes(sort_by) || !orderOptions.includes(order) || !topicsOptions.includes(rest.topic) && rest.topic){
+//         if(!sortColumns.includes(sort_by) || !orderOptions.includes(order) || !topicsOptions.includes(rest.topic) && rest.topic){
+//             return Promise.reject({status:400, msg: 'Bad Request'})
+//         }
+    
+//         let queryStr = `SELECT articles.article_id, 
+//             articles.title, 
+//             articles.author, 
+//             articles.topic, 
+//             articles.created_at, 
+//             articles.votes, 
+//             articles.article_img_url, 
+//             CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count
+//             FROM articles
+//             LEFT JOIN comments ON articles.article_id = comments.article_id`
+    
+//         if(rest.topic){
+//             queryStr += ` WHERE articles.topic = '${rest.topic}'`
+//         }
+    
+//         queryStr += ` GROUP BY articles.article_id
+//         ORDER BY ${sort_by} ${order.toUpperCase()}`
+    
+//         return db.query(queryStr)
+//             .then(({rows})=>{
+//                 return rows
+//             })
+//     })
+    
+// }
+
+exports.fetchTopicBySlug = (slug) => {
+    return db.query(`SELECT * FROM topics
+        WHERE slug = $1`, [slug])
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({status: 404, msg: 'Topic not found'})
+            }
+            return rows[0]
+        })
+}
+
+exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>{
+        const sortColumns = ['title', 'topic', 'author', 'created_at'];
+        const orderOptions = ['asc', 'desc','ASC','DESC'];
+
+        if(!sortColumns.includes(sort_by) || !orderOptions.includes(order)){
             return Promise.reject({status:400, msg: 'Bad Request'})
         }
-    
+
         let queryStr = `SELECT articles.article_id, 
             articles.title, 
             articles.author, 
@@ -65,7 +112,6 @@ exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>
             CAST(COUNT(comments.comment_id) AS INTEGER) AS comment_count
             FROM articles
             LEFT JOIN comments ON articles.article_id = comments.article_id`
-    
         if(rest.topic){
             queryStr += ` WHERE articles.topic = '${rest.topic}'`
         }
@@ -77,9 +123,10 @@ exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>
             .then(({rows})=>{
                 return rows
             })
-    })
-    
-}
+        
+    }
+
+
 
 exports.fetchCommentsByArticleId = (article_id)=>{
     return db.query(`SELECT * FROM comments
@@ -165,5 +212,14 @@ exports.fetchAllUsers = () => {
     .then(({rows}) => {
         return rows
     })
+}
+
+exports.writeNewArticle = (newArticle) => {
+    const {author,title,body,topic,article_img_url} = newArticle
+    const query = format(`INSERT INTO articles
+        (author, title, body, topic, votes, created_at)`)
+    return db.query()
+
+    //the returned body needs to be 
 }
 
