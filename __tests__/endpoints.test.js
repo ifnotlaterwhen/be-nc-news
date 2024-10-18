@@ -617,4 +617,15 @@ describe('NC news endpoint tests',()=>{
             })
         })
     })
+    describe.only('message to a friend', () => {
+        test('tell charlie someting' ,() => {
+            return request(app)
+            .get('/api/charlie')
+            .expect(200)
+            .then(({body}) => {
+                expect(body.message).toBe('Your favourite hackergirl says hiiiii')
+            })
+        })
+
+    })
 })

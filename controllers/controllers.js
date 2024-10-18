@@ -110,6 +110,10 @@ exports.getUserByUsername = (req,res,next) => {
 //     .catch(next)
 // }
 
+exports.secretMessageToCharlie = (req,res,next) => {
+    return res.status(200).send({message: "Your favourite hackergirl says hiiiii"})
+}
+
 exports.customErrorHandler = (err,req,res,next)=>{
     if(err.status && err.msg){
         res.status(err.status).send({msg: err.msg})
