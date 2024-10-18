@@ -349,6 +349,24 @@ describe('NC news endpoint tests',()=>{
                 })
             })
         })
+        xdescribe('POSTing new article', () =>{
+            test('Respond with 201 and the new article posted', () =>{
+                const newArticle = {
+                    author: 'Link',
+                    title: "Zelda- can't find her",
+                    body: "I don't know where she is. I don't care. I just want to picnic",
+                    topic: "per",
+                    article_img_url: 'www.google.com'
+                }
+                return request(app)
+                .post('/api/articles')
+                .send(newArticle)
+                .expect(201)
+                .then(({body}) => {
+                    console.log(body)
+                })
+            })        
+        })
 
     })
     describe('PATCHing news',()=>{

@@ -26,8 +26,7 @@ app.get('/api/users/:username', getUserByUsername);
 
 app.patch('/api/comments/:comment_id', patchVoteById)
 
-app.post('/api/articles', postNewArticle);
-
+// app.post('/api/articles', postNewArticle);
 
 app.use(psqlErrorHandler);
 

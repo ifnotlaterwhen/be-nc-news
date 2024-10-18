@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId, fetchTopicBySlug } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId, fetchTopicBySlug, writeNewArticle } = require("../models/models")
 
 exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
@@ -99,23 +99,29 @@ exports.getUserByUsername = (req,res,next) => {
 
 }
 
-exports.postNewArticle = (req,res,next) => {
-    const newArticle = req.body;
-    
-}
+// exports.postNewArticle = (req,res,next) => {
+//     const newArticle = req.body;
+//     const {topic} = req.body;
+//     const promises = [ writeNewArticle(newArticle), fetchTopicBySlug(topic)];
+//     Promise.all(promises)
+//     .then(newArticle => {
+//         res.status(201).send({newArticle})
+//     })
+//     .catch(next)
+// }
 
-exports.psqlErrorHandler = (err,req,res,next)=>{
-    if(err.code === '22P02' || err.code === '23502'){
-        res.status(400).send({msg: "Bad Request"})
-    }
-    next(err)   
-}
 exports.customErrorHandler = (err,req,res,next)=>{
     if(err.status && err.msg){
         res.status(err.status).send({msg: err.msg})
     }
     next(err)
 
+}
+exports.psqlErrorHandler = (err,req,res,next)=>{
+    if(err.code === '22P02' || err.code === '23502'){
+        res.status(400).send({msg: "Bad Request"})
+    }
+    next(err)   
 }
 exports.serverErrorHandler = (err,req,res,next)=>{
     res.status(500).send({msg: "Internal Server Error"})
