@@ -220,7 +220,56 @@ describe('NC news endpoint tests',()=>{
                     expect(body.msg).toBe('Topic not found')
                 })
             })
+            test('Respond with 200 with all the articles written by the queried author', ()=>{
+                return request(app)
+                .get('/api/articles?author=icellusedkars')
+                .expect(200)
+                .then(({body})=>{
+                    body.articles.forEach(article=>{
+                        expect(article.author).toBe('icellusedkars')
+                    })
+                })
+            })
+            test('Respond with 200 when both author and title queries exist', ()=>{
+                return request(app)
+                .get('/api/articles?topic=mitch&author=icellusedkars&sort_by=title&order=asc')
+                .expect(200)
+                .then(({body})=>{
+                    body.articles.forEach(article=>{
+                        expect(article.author).toBe('icellusedkars')
+                        expect(article.topic).toBe('mitch')
+                    })
+                    expect(body.articles).toBeSortedBy('title', {ascending: true})
+                })
+            })
+            test('Respond with 404 when author is not found', ()=>{
+                return request(app)
+                .get('/api/articles?topic=mitch&author=reese&sort_by=title&order=asc')
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe('Author not found')
+                })
+            })
+            test('Respond with 200 with all articles with a title that matches the query', ()=>{
+                return request(app)
+                .get('/api/articles?title=mitch')
+                .expect(200)
+                .then(({body})=>{
+                    body.articles.forEach(article=>{
+                        expect(article.title.toLowerCase().includes('mitch')).toBe(true)
+                    })
+                })
+            })
+            test('Respond with 404 when no matching articles found', ()=>{
+                return request(app)
+                .get('/api/articles?topic=mitch&title=reese&sort_by=title&order=asc')
+                .expect(404)
+                .then(({body})=>{
+                    expect(body.msg).toBe('No articles found')
+                })
+            })
         })
+    })
         describe('GETting comments by article id',()=>{
             test('Respond with 200 with the correct comment',()=>{
                 return request(app)
@@ -617,7 +666,7 @@ describe('NC news endpoint tests',()=>{
             })
         })
     })
-    describe.only('message to a friend', () => {
+    describe('message to a friend', () => {
         test('tell charlie someting' ,() => {
             return request(app)
             .get('/api/jenn')
@@ -628,4 +677,4 @@ describe('NC news endpoint tests',()=>{
         })
 
     })
-})
+

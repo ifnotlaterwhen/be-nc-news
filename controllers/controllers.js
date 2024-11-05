@@ -1,4 +1,4 @@
-const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId, fetchTopicBySlug, writeNewArticle } = require("../models/models")
+const { selectAllTopics, fetchEndpoints, fetchArticleById, fetchAllArticles, fetchCommentsByArticleId, writeCommentByArticleId, updateVotesById, fetchUserbyUsername, removeCommentsById, fetchAllUsers, fetchCommentByCommentId, fetchTopicBySlug, writeNewArticle, fetchArticleByAuthor, fetchArticleByTitle } = require("../models/models")
 
 exports.getEndpoints = (req,res,next) => {
     const endpoints = fetchEndpoints()
@@ -25,6 +25,12 @@ exports.getAllArticles = (req,res,next)=>{
     let promises = [fetchAllArticles(queries)]
     if(req.query.topic){
         promises.push(fetchTopicBySlug(req.query.topic))
+    }
+    if(req.query.author){
+        promises.push(fetchArticleByAuthor(req.query.author))
+    }
+    if(req.query.title){
+        promises.push(fetchArticleByTitle(req.query.title))
     }
     Promise.all(promises).then(results => {
         const articles = results[0]

@@ -47,6 +47,27 @@ exports.fetchTopicBySlug = (slug) => {
         })
 }
 
+exports.fetchArticleByAuthor = (author) => {
+    return db.query(`SELECT * FROM articles
+        WHERE author = $1`, [author])
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({status: 404, msg: 'Author not found'})
+            }
+            return rows[0]
+        })
+}
+exports.fetchArticleByTitle = (title) => {
+    return db.query(`SELECT * FROM articles
+        WHERE title LIKE $1`, [`%${title}%`])
+        .then(({rows}) => {
+            if(rows.length === 0){
+                return Promise.reject({status: 404, msg: 'No articles found'})
+            }
+            return rows[0]
+        })
+}
+
 exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>{
         const sortColumns = ['title', 'topic', 'author', 'created_at'];
         const orderOptions = ['asc', 'desc','ASC','DESC'];
@@ -67,6 +88,12 @@ exports.fetchAllArticles = ({sort_by = 'created_at', order = 'desc', ...rest})=>
             LEFT JOIN comments ON articles.article_id = comments.article_id`
         if(rest.topic){
             queryStr += ` WHERE articles.topic = '${rest.topic}'`
+        }
+        if(rest.author){
+            queryStr += rest.topic? ` AND articles.author = '${rest.author}'`: ` WHERE articles.author = '${rest.author}'`
+        }
+        if(rest.title){
+            queryStr += rest.author || rest.topic? ` AND articles.title ILIKE '%${rest.title}%'`: ` WHERE articles.title ILIKE '%${rest.title}%'`
         }
     
         queryStr += ` GROUP BY articles.article_id
