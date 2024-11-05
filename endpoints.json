@@ -86,7 +86,20 @@
       "article_img_url": "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700"
     }
   },
+  "DELETE /api/comments/:comment_id":{
+    "description": "deletes comment by id"
+  },
+  "GET /api/users":{
+    "description": "get all users"
+  },
+  "GET /api/users/:username":{
+    "description": "get user by username"
+  },
+  "PATCH /api/comments/:comment_id": {
+    "description": "update comment by comment id"
+  },
+  
   "GET /api/[insert secrete message]":{
-    "description": "insert ppbh boy's name after /api/"
+    "description": "insert waifu's name after /api/"
   }
 }
